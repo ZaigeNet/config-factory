@@ -1,0 +1,43 @@
+<%_ if (!mp_bgp) { _%>
+protocol bgp <%= name %>_v4 from dnpeers {
+    neighbor <%= peer_v4 %> as <%= asn %>;
+    direct;
+    ipv6 {
+        import none;
+        export none;
+    };
+}
+<%_ } _%>
+<%_ if(!ibgp) { _%>
+protocol bgp <%= name %>_v6 from dnpeers {
+    neighbor <%= peer_v6 %> % '<%= netName %>' as <%= asn %>;
+    direct;
+<%_ if(!mp_bgp) { _%>
+    ipv4 {
+        import none;
+        export none;
+    };
+<%_ } _%>
+};
+<%_ } _%>
+<%_ if(ibgp) { _%>
+protocol bgp <%= name %> {
+    local as OWNAS;
+    neighbor <%= peer_v6 %> % '<%= netName %>' as OWNAS;
+    direct;
+    ipv4 {
+        next hop self;
+        cost <%= cost %>;
+
+        import all;
+        export all;
+    };
+    ipv6 {
+        next hop self;
+        cost <%= cost %>;
+
+        import all;
+        export all;
+    };
+}
+<%_ } _%>

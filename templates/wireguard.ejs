@@ -1,0 +1,18 @@
+<%= `# ${desc}` %>
+
+[Interface]
+PrivateKey = <%= privateKey %>
+ListenPort = <%= port %>
+<%_ if (typeof peerIp !== 'undefined') { _%>
+PostUp = ip addr add <%= ownIp %>/32 peer <%= peerIp %>/32 dev %i
+<%_ } else { _%>
+PostUp = ip addr add <%= ownIp %> dev %i
+<%_ } _%>
+PostUp = ip addr add <%= local_v6 %> dev %i
+Table = off
+
+
+[Peer]
+PublicKey = <%= publicKey %>
+Endpoint = <%= endPoint %>
+AllowedIPs = 10.0.0.0/8, 172.20.0.0/14, 172.31.0.0/16, fd00::/8, fe80::/64
