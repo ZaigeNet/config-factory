@@ -1,0 +1,13 @@
+global:
+  ownas: 0000000000 # AS number
+  ownnet: x.x.x.x/x # IPv4 network
+  ownnet6: x:x:x::/x # IPv6 network
+  default_local_v6: fe80::x/64 # Default IPv6 link-local address to create BGP
+
+hosts:
+  server01: # Hostname1
+    wg_prikey: xxxxx # WireGuard private key
+    
+  server02: # Hostname2
+    wg_prikey: xxxxx # WireGuard private key
+

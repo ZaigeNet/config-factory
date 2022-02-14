@@ -1,0 +1,15 @@
+dn42routers:
+  children:
+    server01: # The key should be sync with config.yml
+      host: xxxxxx # Public IP address or domain
+      wg_pubkey: xxxx # WireGuard public key
+      ownip: x.x.x.x # IPv4 address
+      ownip6: x:x:x::x # IPv6 address
+      link_local_ip6: fe80::x/64 # IPv6 link-local address to create iBGP
+
+    server02: # The key should be sync with config.yml
+      host: xxxxxx # Public IP address or domain
+      wg_pubkey: xxxx # WireGuard public key
+      ownip: x.x.x.x # IPv4 address
+      ownip6: x:x:x::x # IPv6 address
+      link_local_ip6: fe80::x/64 # IPv6 link-local address to create iBGP
