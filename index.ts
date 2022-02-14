@@ -35,7 +35,7 @@ const checkFileExists = (file: string) => fs
       return Promise.all([
         createWGConfig(host, basePath),
         createBirdConfig(host, basePath),
-        createIWGConfig(host, basePath, Config.hosts[host]['wg_remote']),
+        createIWGConfig(host, basePath),
         createIBirdConfig(host, basePath)
       ]);
     })

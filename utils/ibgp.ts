@@ -19,23 +19,27 @@ for (const host of iBGPCost) {
   addEdge(j, i, v);
 }
 
-export async function createIWGConfig(host: string, basePath: string, remoteHost: string): Promise<void> {
-  const remote = hosts[remoteHost];
+export async function createIWGConfig(host: string, basePath: string): Promise<void[]> {
   const current = hosts[host];
   const port = Config.global.ownas.toString().slice(-5);
-  const name = `internal_${remoteHost.split('-')[0]}`;
-  const obj = {
-    desc: '',
-    privateKey: Config['hosts'][host]['wg_prikey'],
-    port,
-    endPoint: `${remote['host']}:${port}`,
-    publicKey: remote.wg_pubkey,
-    ownIp: `${current.ownip}/27`,
-    ownnet: Config['global']['ownnet'],
-    local_v6: current.link_local_ip6
-  };
-  const output = wireguardFactory(obj);
-  return fs.writeFile(`${basePath}/wireguard/${name}.conf`, output);
+  return Promise.all(
+    Object.keys(hosts).map(remoteHost => {
+      const name = `internal_${remoteHost.split('-')[0]}`;
+      const remote = hosts[remoteHost];
+      const obj = {
+        desc: '',
+        privateKey: Config['hosts'][host]['wg_prikey'],
+        port,
+        endPoint: `${remote['host']}:${port}`,
+        publicKey: remote.wg_pubkey,
+        ownIp: `${current.ownip}/27`,
+        ownnet: Config['global']['ownnet'],
+        local_v6: current.link_local_ip6
+      };
+      const output = wireguardFactory(obj);
+      return fs.writeFile(`${basePath}/wireguard/${name}.conf`, output);
+    })
+  );
 }
 
 export function createIBirdConfig(host: string, basePath: string): Promise<void[]> {
