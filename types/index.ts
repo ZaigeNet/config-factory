@@ -42,7 +42,6 @@ interface IConfig {
   hosts: {
     [propName: string]: {
       wg_prikey: string;
-      wg_remote: string;
     }
   }
 }
