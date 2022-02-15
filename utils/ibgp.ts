@@ -23,9 +23,10 @@ export async function createIWGConfig(host: string, basePath: string): Promise<v
   const current = hosts[host];
   const port = Config.global.ownas.toString().slice(-5);
   return Promise.all(
-    Object.keys(hosts).map(remoteHost => {
-      const name = `internal_${remoteHost.split('-')[0]}`;
-      const remote = hosts[remoteHost];
+    Object.keys(hosts).map(k => {
+      if (k === host) return Promise.resolve();
+      const name = `internal_${k.split('-')[0]}`;
+      const remote = hosts[k];
       const obj = {
         desc: '',
         privateKey: Config['hosts'][host]['wg_prikey'],
