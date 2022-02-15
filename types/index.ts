@@ -24,6 +24,7 @@ interface IHosts {
       [propName: string]: {
         host: string;
         wg_pubkey: string;
+        wg_port: number;
         ownip: string;
         ownip6: string;
         link_local_ip6: string;

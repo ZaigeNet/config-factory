@@ -21,7 +21,7 @@ for (const host of iBGPCost) {
 
 export async function createIWGConfig(host: string, basePath: string): Promise<void[]> {
   const current = hosts[host];
-  const port = Config.global.ownas.toString().slice(-5);
+  const port = current.wg_port;
   return Promise.all(
     Object.keys(hosts).map(k => {
       if (k === host) return Promise.resolve();
@@ -30,7 +30,7 @@ export async function createIWGConfig(host: string, basePath: string): Promise<v
       const obj = {
         desc: '',
         privateKey: Config['hosts'][host]['wg_prikey'],
-        port,
+        port: remote.wg_port,
         endPoint: `${remote['host']}:${port}`,
         publicKey: remote.wg_pubkey,
         ownIp: `${current.ownip}/27`,
