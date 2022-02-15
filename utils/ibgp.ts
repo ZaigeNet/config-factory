@@ -33,7 +33,8 @@ export async function createIWGConfig(host: string, basePath: string): Promise<v
         port: remote.wg_port,
         endPoint: `${remote['host']}:${port}`,
         publicKey: remote.wg_pubkey,
-        ownIp: `${current.ownip}/27`,
+        ownIp: current.ownip,
+        peerIp: remote.ownip,
         ownnet: Config['global']['ownnet'],
         local_v6: current.link_local_ip6
       };
