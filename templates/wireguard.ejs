@@ -14,5 +14,8 @@ Table = off
 
 [Peer]
 PublicKey = <%= publicKey %>
+<%_ if (typeof presharedKey !== 'undefined') { _%>
+PresharedKey = <%= presharedKey %>
+<%_ } _%>
 Endpoint = <%= endPoint %>
 AllowedIPs = 10.0.0.0/8, 172.20.0.0/14, 172.31.0.0/16, fd00::/8, fe80::/64

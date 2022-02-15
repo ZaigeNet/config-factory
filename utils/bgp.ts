@@ -15,10 +15,11 @@ export async function createWGConfig(host: string, basePath: string): Promise<un
       const obj = {
         desc: peer.desc,
         privateKey: Config['hosts'][host]['wg_prikey'],
+        publicKey: peer['wg_pubkey'],
+        presharedKey: peer['wg_presharedkey'],
         port: peer.port,
         ownIp: hosts[host]['ownip'],
         peerIp: peer['peer_v4'],
-        publicKey: peer['wg_pubkey'],
         endPoint: peer['wg_remote'],
         local_v6: peer['local_v6']
       };

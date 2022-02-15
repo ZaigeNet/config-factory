@@ -4,6 +4,7 @@ interface IPeerItem {
   port: number;
   wg_remote: string;
   wg_pubkey: string;
+  wg_presharedkey?: string;
   desc: string;
   peer_v4: string;
   peer_v6: string;
