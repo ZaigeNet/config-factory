@@ -6,6 +6,14 @@ import {
 const hosts = Hosts['dn42routers']['children'];
 const { peers } = Peers;
 
+const getSubASN = (asn: number): string => {
+  const asnStr = asn.toString();
+  if (asnStr.length === 10) {
+    return asnStr.slice(-4);
+  }
+  return asnStr;
+};
+
 // Factory Wireguard
 export async function createWGConfig(host: string, basePath: string): Promise<unknown> {
   const hostPeers = peers[host];
@@ -26,7 +34,7 @@ export async function createWGConfig(host: string, basePath: string): Promise<un
         local_v6: peer['local_v6']
       };
       const output = wireguardFactory(obj);
-      const netName = `dn${peer.asn.toString().slice(-4)}.conf`;
+      const netName = `dn${getSubASN(peer.asn)}.conf`;
       return fs.writeFile(`${basePath}/wireguard/${netName}`, output);
     })
   );
@@ -39,7 +47,7 @@ export async function createBirdConfig(host: string, basePath: string): Promise<
   return Promise.all(
     hostPeers.map(peer => {
       if (peer.disabled) return Promise.resolve();
-      const netName = `dn${peer.asn.toString().slice(-4)}`;
+      const netName = `dn${getSubASN(peer.asn)}`;
       const obj = {
         ...peer,
         ibgp: false,
