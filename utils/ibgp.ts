@@ -34,7 +34,9 @@ export async function createIWGConfig(host: string, basePath: string): Promise<v
         endPoint: `${remote['host']}:${port}`,
         publicKey: remote.wg_pubkey,
         ownIp: current.ownip,
+        ownIp6: current.ownip6,
         peerIp: remote.ownip,
+        peerIp6Ula: remote.ownip6,
         ownnet: Config['global']['ownnet'],
         local_v6: current.link_local_ip6
       };
@@ -64,7 +66,7 @@ export function createIBirdConfig(host: string, basePath: string): Promise<void[
         mp_bgp: true,
         ibgp: true,
         name,
-        peer_v6: hosts[k].link_local_ip6.slice(0, -3),
+        peer_v6_linklocal: hosts[k].link_local_ip6.slice(0, -3),
         netName: name,
         cost: ibgp[host][k]
       };

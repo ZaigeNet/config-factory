@@ -7,7 +7,8 @@ interface IPeerItem {
   wg_presharedkey?: string;
   desc: string;
   peer_v4: string;
-  peer_v6: string;
+  peer_v6_ula?: string;
+  peer_v6_linklocal?: string;
   local_v6?: string;
   mp_bgp: boolean;
   disabled: boolean;
@@ -15,8 +16,8 @@ interface IPeerItem {
 
 interface IPeers {
   peers: {
-    [propName: string]: IPeerItem[]
-  }
+    [propName: string]: IPeerItem[];
+  };
 }
 
 interface IHosts {
@@ -29,9 +30,9 @@ interface IHosts {
         ownip: string;
         ownip6: string;
         link_local_ip6: string;
-      }
-    }
-  }
+      };
+    };
+  };
 }
 
 interface IConfig {
@@ -40,10 +41,10 @@ interface IConfig {
     ownnet: string;
     ownnet6: string;
     default_local_v6: string;
-  }
+  };
   hosts: {
     [propName: string]: {
       wg_prikey: string;
-    }
-  }
+    };
+  };
 }

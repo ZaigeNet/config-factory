@@ -3,10 +3,11 @@
 [Interface]
 PrivateKey = <%= privateKey %>
 ListenPort = <%= port %>
-<%_ if (typeof peerIp !== 'undefined') { _%>
 PostUp = ip addr add <%= ownIp %>/32 peer <%= peerIp %>/32 dev %i
+<%_ if (typeof peerIp6Ula !== 'undefined') { _%>
+PostUp = ip addr add <%= ownIp6 %>/128 peer <%= peerIp6Ula %>/128 dev %i
 <%_ } else { _%>
-PostUp = ip addr add <%= ownIp %> dev %i
+PostUp = ip addr add <%= ownIp6 %>/128 dev %i
 <%_ } _%>
 PostUp = ip addr add <%= local_v6 %> dev %i
 Table = off

@@ -19,7 +19,9 @@ export async function createWGConfig(host: string, basePath: string): Promise<un
         presharedKey: peer['wg_presharedkey'],
         port: peer.port,
         ownIp: hosts[host]['ownip'],
+        ownIp6: hosts[host]['ownip6'],
         peerIp: peer['peer_v4'],
+        peerIp6Ula: peer['peer_v6_ula'],
         endPoint: peer['wg_remote'],
         local_v6: peer['local_v6']
       };

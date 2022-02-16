@@ -10,7 +10,7 @@ protocol bgp <%= name %>_v4 from dnpeers {
 <%_ } _%>
 <%_ if(!ibgp) { _%>
 protocol bgp <%= name %>_v6 from dnpeers {
-    neighbor <%= peer_v6 %> % '<%= netName %>' as <%= asn %>;
+    neighbor <%= peer_v6_linklocal || peer_v6_ula %> % '<%= netName %>' as <%= asn %>;
     direct;
 <%_ if(!mp_bgp) { _%>
     ipv4 {
@@ -23,7 +23,7 @@ protocol bgp <%= name %>_v6 from dnpeers {
 <%_ if(ibgp) { _%>
 protocol bgp <%= name %> {
     local as OWNAS;
-    neighbor <%= peer_v6 %> % '<%= netName %>' as OWNAS;
+    neighbor <%= peer_v6_linklocal %> % '<%= netName %>' as OWNAS;
     direct;
     ipv4 {
         next hop self;
