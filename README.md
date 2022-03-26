@@ -13,7 +13,7 @@ echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 sysctl -p
 ```
 
-## Wireguard
+## WireGuard
 
 ```bash
 echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list # Debian 10
