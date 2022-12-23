@@ -1,8 +1,6 @@
 import { promises as fs } from 'fs';
 import { resolve } from 'path';
-import {
-  birdPeerFactory, Hosts, Config, wireguardFactory, iBGPCost
-} from './utils';
+import { birdPeerFactory, Hosts, Config, wireguardFactory, iBGPCost, birdOspfBackboneFactory } from './utils';
 
 const hosts = Hosts['dn42routers']['children'];
 
@@ -22,6 +20,13 @@ for (const host of iBGPCost) {
 export async function createIWGConfig(host: string, basePath: string): Promise<void[]> {
   const current = hosts[host];
   const port = current.wg_port;
+
+  const buildPrivateIp = (ip: string) => {
+    const prefix = '10.1.1.';
+    const hostNumber = ip.split('.')[3];
+    return `${prefix}${hostNumber}`;
+  };
+
   return Promise.all(
     Object.keys(hosts).map(k => {
       if (k === host) return Promise.resolve();
@@ -33,12 +38,11 @@ export async function createIWGConfig(host: string, basePath: string): Promise<v
         port: remote.wg_port,
         endPoint: `${remote['host']}:${port}`,
         publicKey: remote.wg_pubkey,
-        ownIp: current.ownip,
-        ownIp6: current.ownip6,
-        peerIp: remote.ownip,
-        peerIp6Ula: remote.ownip6,
+        ownIp: buildPrivateIp(current.ownip),
+        peerIp: buildPrivateIp(remote.ownip),
         ownnet: Config['global']['ownnet'],
-        local_v6: current.link_local_ip6
+        local_v6: current.link_local_ip6,
+        isInternal: true
       };
       const output = wireguardFactory(obj);
       return fs.writeFile(`${basePath}/wireguard/${name}.conf`, output);
@@ -48,14 +52,19 @@ export async function createIWGConfig(host: string, basePath: string): Promise<v
 
 export function createIBirdConfig(host: string, basePath: string): Promise<void[]> {
   const workers: Promise<void>[] = [];
-  /*
-    @ Note: ospf.conf OSPF is not used
-    Temporarily we have a full mesh between all routers.
-  */
+
+  const ospfArray = Object.keys(hosts)
+    .filter(k => k !== host)
+    .map(k => {
+      const int = `internal_${k.split('-')[0]}`;
+      const cost = ibgp[host][k];
+      return { interface: int, cost };
+    });
+
+  const output = birdOspfBackboneFactory(ospfArray);
+
   workers.push(fs.copyFile(resolve(__dirname, '../templates/ospf.conf'), `${basePath}/bird/ospf.conf`));
-  workers.push(
-    fs.copyFile(resolve(__dirname, '../templates/ospf_backbone.conf'), `${basePath}/bird/ospf_backbone.conf`)
-  );
+  workers.push(fs.writeFile(`${basePath}/bird/ospf_backbone.conf`, output));
 
   return Promise.all([
     ...workers,
@@ -66,7 +75,7 @@ export function createIBirdConfig(host: string, basePath: string): Promise<void[
         mp_bgp: true,
         ibgp: true,
         name,
-        peer_v6_linklocal: hosts[k].link_local_ip6.slice(0, -3),
+        peer_v6_ula: hosts[k].ownip6,
         netName: name,
         cost: ibgp[host][k]
       };

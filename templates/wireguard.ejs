@@ -6,7 +6,7 @@ ListenPort = <%= port %>
 PostUp = ip addr add <%= ownIp %>/32 peer <%= peerIp %>/32 dev %i
 <%_ if (typeof peerIp6Ula !== 'undefined') { _%>
 PostUp = ip addr add <%= ownIp6 %>/128 peer <%= peerIp6Ula %>/128 dev %i
-<%_ } else { _%>
+<%_ } else if (typeof ownIp6 !== 'undefined') { _%>
 PostUp = ip addr add <%= ownIp6 %>/128 dev %i
 <%_ } _%>
 PostUp = ip addr add <%= local_v6 %> dev %i
@@ -20,4 +20,8 @@ PresharedKey = <%= presharedKey %>
 <%_ } if (endPoint) { _%>
 Endpoint = <%= endPoint %>
 <%_ } _%>
+<%_ if (!isInternal) { _%>
 AllowedIPs = 10.0.0.0/8, 172.20.0.0/14, 172.31.0.0/16, fd00::/8, fe80::/64
+<%_ } else { _%>
+AllowedIPs = 0.0.0.0/0, ::/0
+<%_ } _%>

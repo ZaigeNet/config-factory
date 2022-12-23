@@ -12,7 +12,7 @@ export const Hosts = yaml.load(fs.readFileSync(Resolve('../configs/hosts.yml'), 
 
 export const Config = yaml.load(fs.readFileSync(Resolve('../configs/config.yml'), 'utf-8')) as IConfig;
 
-export const iBGPCost = require('../configs/ibgp.json');
+export const iBGPCost = require('../configs/cost.json');
 
 const wireguardTemplate = fs.readFileSync(Resolve('../templates/wireguard.ejs'), 'utf-8');
 
@@ -20,9 +20,12 @@ const birdTemplate = fs.readFileSync(Resolve('../templates/bird.ejs'), 'utf-8');
 
 const birdPeerTemplate = fs.readFileSync(Resolve('../templates/bird_peer.ejs'), 'utf-8');
 
+const birdOspfBackboneTemplate = fs.readFileSync(Resolve('../templates/ospf_backbone.ejs'), 'utf-8');
+
 export function wireguardFactory(obj: Record<any, any>) {
   const local_v6 = obj.local_v6 ? obj.local_v6 : Config.global.default_local_v6;
   return ejs.render(wireguardTemplate, {
+    isInternal: false,
     ...obj,
     local_v6
   });
@@ -37,4 +40,8 @@ export function birdFactory(obj: Record<any, any>) {
     ...obj,
     ...Config.global
   });
+}
+
+export function birdOspfBackboneFactory(arr: Array<any>) {
+  return ejs.render(birdOspfBackboneTemplate, { internals: arr });
 }

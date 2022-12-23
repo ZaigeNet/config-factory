@@ -1,0 +1,11 @@
+area 0 {
+<%_ internals.forEach(function(item){ _%>
+    interface "<%= item.interface %>" {
+        type ptp;
+        cost <%= item.cost %>;
+    };
+<%_ }) _%>
+    interface "dummy-dn42" {
+        stub;
+    };
+};

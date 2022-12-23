@@ -45,6 +45,19 @@ mkdir -p /etc/bird/peers
 */15 * * * * curl -sfSLR -o /etc/bird/roa_dn42.conf https://dn42.burble.com/roa/dn42_roa_bird2_4.conf && curl -sfSLR -o /etc/bird/roa_dn42_v6.conf https://dn42.burble.com/roa/dn42_roa_bird2_6.conf && /usr/sbin/birdc c 1> /dev/null
 ```
 
+## Dummy Interface
+
+```bash
+cat << EOF >> /etc/network/interfaces
+auto dummy-dn42
+iface dummy-dn42 inet static
+    address <IPv4 Address>/32
+    pre-up ip link del dummy-dn42 || true
+    pre-up ip link add dummy-dn42 type dummy || true
+    post-up ip addr add <IPv6 Address>/128 dev dummy-dn42
+EOF
+```
+
 ## Thanks
 
 https://dn42.dev/howto/Getting-started
