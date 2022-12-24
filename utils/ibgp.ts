@@ -19,7 +19,6 @@ for (const host of iBGPCost) {
 
 export async function createIWGConfig(host: string, basePath: string): Promise<void[]> {
   const current = hosts[host];
-  const port = current.wg_port;
 
   const buildPrivateIp = (ip: string) => {
     const prefix = '10.1.1.';
@@ -32,11 +31,15 @@ export async function createIWGConfig(host: string, basePath: string): Promise<v
       if (k === host) return Promise.resolve();
       const name = `internal_${k.split('-')[0]}`;
       const remote = hosts[k];
+      const remotePort = remote?.['wg_listening_ports']?.[host] ? remote['wg_listening_ports'][host] : current.wg_port;
+      const listeningPort = current?.['wg_listening_ports']?.[k]
+        ? current['wg_listening_ports'][k]
+        : remote.wg_port;
       const obj = {
         desc: '',
         privateKey: Config['hosts'][host]['wg_prikey'],
-        port: remote.wg_port,
-        endPoint: `${remote['host']}:${port}`,
+        port: listeningPort,
+        endPoint: `${remote['host']}:${remotePort}`,
         publicKey: remote.wg_pubkey,
         ownIp: buildPrivateIp(current.ownip),
         peerIp: buildPrivateIp(remote.ownip),

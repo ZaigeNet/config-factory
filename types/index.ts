@@ -30,6 +30,9 @@ interface IHosts {
         ownip: string;
         ownip6: string;
         link_local_ip6: string;
+        wg_listening_ports?: {
+          [propName: string]: number;
+        };
       };
     };
   };
