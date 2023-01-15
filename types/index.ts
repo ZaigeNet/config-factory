@@ -44,10 +44,13 @@ export interface IConfig {
     ownnet: string;
     ownnet6: string;
     default_local_v6: string;
+    ssh_agent?: string;
   };
   hosts: {
     [propName: string]: {
       wg_prikey: string;
+      pubip: string;
+      ssh_port?: number;
     };
   };
 }

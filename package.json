@@ -4,11 +4,14 @@
   "private": "true",
   "main": "index.ts",
   "scripts": {
-    "start": "npx tsx index.ts"
+    "start": "npx tsx index.ts",
+    "pub": "npx tsx scripts/publish.ts"
   },
   "dependencies": {
     "ejs": "^3.1.6",
     "js-yaml": "^4.1.0",
+    "log4js": "^6.7.1",
+    "node-ssh": "^13.0.0",
     "tslib": "^2.3.0",
     "yargs": "^17.6.2"
   },
