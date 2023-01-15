@@ -1,4 +1,4 @@
-interface IPeerItem {
+export interface IPeerItem {
   name: string;
   asn: number;
   port: number;
@@ -14,13 +14,13 @@ interface IPeerItem {
   disabled: boolean;
 }
 
-interface IPeers {
+export interface IPeers {
   peers: {
     [propName: string]: IPeerItem[];
   };
 }
 
-interface IHosts {
+export interface IHosts {
   dn42routers: {
     children: {
       [propName: string]: {
@@ -38,7 +38,7 @@ interface IHosts {
   };
 }
 
-interface IConfig {
+export interface IConfig {
   global: {
     ownas: string;
     ownnet: string;
@@ -50,4 +50,11 @@ interface IConfig {
       wg_prikey: string;
     };
   };
+}
+
+export interface Options {
+  excludeWireguard: boolean;
+  excludeBird: boolean;
+  excludeExternalConfig: boolean;
+  excludeInternalConfig: boolean;
 }

@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import yaml from 'js-yaml';
 import ejs from 'ejs';
+import { IPeers, IHosts, IConfig } from '../types';
 
 const Resolve = (p: string) => path.resolve(__dirname, p);
 

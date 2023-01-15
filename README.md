@@ -58,6 +58,24 @@ iface dummy-dn42 inet static
 EOF
 ```
 
+## CLI Options
+
+```bash
+Options:
+  --help                     Show help                                 [boolean]
+  --version                  Show version number                       [boolean]
+  --exclude-wireguard        Skip wireguard config generation
+                                                      [boolean] [default: false]
+  --exclude-bird             Skip bird config generation
+                                                      [boolean] [default: false]
+  --exclude-internal-config  Skip internal config generation
+                                                      [boolean] [default: false]
+  --exclude-external-config  Skip external config generation
+                                                      [boolean] [default: false]
+  --delete                   Delete existing config files
+                                                       [boolean] [default: true]
+```
+
 ## Thanks
 
 https://dn42.dev/howto/Getting-started
