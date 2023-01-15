@@ -97,7 +97,7 @@ const checkMap = async (
 
   for (const [key] of oldMap) {
     if (!visited.has(key)) {
-      logger.info(`${hostname} ${key} is not exist in local but exist in remote`);
+      logger.warn(`${hostname} ${key} is not exist in local but exist in remote`);
     }
   }
 };
