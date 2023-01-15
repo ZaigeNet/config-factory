@@ -80,7 +80,6 @@ export function createIBirdConfig(host: string, basePath: string): Promise<void[
         name,
         peer_v6_ula: hosts[k].ownip6,
         netName: name,
-        cost: ibgp[host][k]
       };
       const output = birdPeerFactory(obj);
       return fs.writeFile(`${basePath}/bird/peers/${name}.conf`, output);

@@ -141,6 +141,23 @@ template bgp dnpeers {
     };
 }
 
+template bgp tpl_ibgp {
+    local as OWNAS;
+
+    ipv4 {
+        next hop self;
+
+        import where source = RTS_BGP && is_valid_network() && !is_self_net();
+        export where source = RTS_BGP && is_valid_network() && !is_self_net();
+    };
+    ipv6 {
+        next hop self;
+
+        import where source = RTS_BGP && is_valid_network() && !is_self_net();
+        export where source = RTS_BGP && is_valid_network() && !is_self_net();
+    };
+}
+
 
 include "/etc/bird/peers/*";
 include "/etc/bird/ospf.conf";

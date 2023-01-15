@@ -21,22 +21,7 @@ protocol bgp <%= name %>_v6 from dnpeers {
 };
 <%_ } _%>
 <%_ if(ibgp) { _%>
-protocol bgp <%= name %> {
-    local as OWNAS;
+protocol bgp <%= name %> from tpl_peer {
     neighbor <%= peer_v6_ula %> as OWNAS;
-    ipv4 {
-        next hop self;
-        cost <%= cost %>;
-
-        import where source = RTS_BGP && is_valid_network() && !is_self_net();
-        export where source = RTS_BGP && is_valid_network() && !is_self_net();
-    };
-    ipv6 {
-        next hop self;
-        cost <%= cost %>;
-
-        import where source = RTS_BGP && is_valid_network() && !is_self_net();
-        export where source = RTS_BGP && is_valid_network() && !is_self_net();
-    };
 }
 <%_ } _%>
