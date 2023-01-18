@@ -4,6 +4,8 @@ import { Config } from '../utils/utils';
 import { promises as fs } from 'fs';
 import crypto from 'crypto';
 import log4js from 'log4js';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 const agent = Config['global']['ssh_agent'];
 const hosts = Config['hosts'];
@@ -16,6 +18,19 @@ log4js.configure({
     default: { appenders: ['out'], level: 'info' }
   }
 });
+
+const _argv = yargs(hideBin(process.argv))
+  .option('exclude-wireguard', {
+    type: 'boolean',
+    default: false,
+    description: 'Skip wireguard config publishing'
+  })
+  .option('exclude-bird', {
+    type: 'boolean',
+    default: false,
+    description: 'Skip bird config publishing'
+  })
+  .parse();
 
 const getWireguardConfigPath = (hostname: string) => resolve(__dirname, `../dist/${hostname}/wireguard`);
 const getBirdConfigPath = (hostname: string) => resolve(__dirname, `../dist/${hostname}/bird`);
@@ -113,23 +128,27 @@ const link = async (hostname: string, ip: string, port: number) => {
   });
 
   /* WireGuard */
-  const localWgPath = getWireguardConfigPath(hostname);
-  const wgConfigMap = await getRemoteHash(ssh, '/etc/wireguard');
-  const newWgConfigMap = await getLocalHash(localWgPath);
+  if (!_argv['excludeWireguard']) {
+    const localWgPath = getWireguardConfigPath(hostname);
+    const wgConfigMap = await getRemoteHash(ssh, '/etc/wireguard');
+    const newWgConfigMap = await getLocalHash(localWgPath);
 
-  await checkMap('Wireguard', hostname, wgConfigMap, newWgConfigMap, localWgPath, ssh);
+    await checkMap('Wireguard', hostname, wgConfigMap, newWgConfigMap, localWgPath, ssh);
+  }
 
   /* Bird */
-  const localBirdPath = getBirdConfigPath(hostname);
-  const birdConfigMap = await getRemoteHash(ssh, '/etc/bird');
-  const newBirdConfigMap = await getLocalHash(localBirdPath);
+  if (!_argv['excludeBird']) {
+    const localBirdPath = getBirdConfigPath(hostname);
+    const birdConfigMap = await getRemoteHash(ssh, '/etc/bird');
+    const newBirdConfigMap = await getLocalHash(localBirdPath);
 
-  await checkMap('Bird', hostname, birdConfigMap, newBirdConfigMap, localBirdPath, ssh);
+    await checkMap('Bird', hostname, birdConfigMap, newBirdConfigMap, localBirdPath, ssh);
 
-  const logger = log4js.getLogger('Bird');
+    const logger = log4js.getLogger('Bird');
 
-  const { stderr } = await ssh.execCommand('birdc c');
-  stderr && logger.error(`${hostname} ${stderr}`);
+    const { stderr } = await ssh.execCommand('birdc c');
+    stderr && logger.error(`${hostname} ${stderr}`);
+  }
 
   return ssh.dispose();
 };
