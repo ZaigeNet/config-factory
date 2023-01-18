@@ -1,4 +1,4 @@
-dn42routers:
+routers:
   children:
     server01: # The key should be sync with config.yml
       host: xxxxxx # Public IP address or domain

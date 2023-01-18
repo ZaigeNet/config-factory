@@ -7,7 +7,7 @@ import { createIBirdConfig, createIWGConfig } from './utils/ibgp';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-const _argv = yargs(hideBin(process.argv))
+const argv = yargs(hideBin(process.argv))
   .option('exclude-wireguard', {
     type: 'boolean',
     default: false,
@@ -33,7 +33,7 @@ const _argv = yargs(hideBin(process.argv))
     default: true,
     description: 'Delete existing config files'
   })
-  .parse();
+  .parseSync();
 
 const outputDir = resolve(__dirname, './dist');
 
@@ -46,7 +46,6 @@ const checkFileExists = (file: string) =>
     .catch(() => false);
 
 (async () => {
-  const argv = _argv instanceof Promise ? await _argv : _argv;
 
   if (argv['delete'] && (await checkFileExists(outputDir))) {
     await fs.rm(outputDir, { recursive: true });

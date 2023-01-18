@@ -19,7 +19,7 @@ log4js.configure({
   }
 });
 
-const _argv = yargs(hideBin(process.argv))
+const argv = yargs(hideBin(process.argv))
   .option('exclude-wireguard', {
     type: 'boolean',
     default: false,
@@ -30,7 +30,7 @@ const _argv = yargs(hideBin(process.argv))
     default: false,
     description: 'Skip bird config publishing'
   })
-  .parse();
+  .parseSync();
 
 const getWireguardConfigPath = (hostname: string) => resolve(__dirname, `../dist/${hostname}/wireguard`);
 const getBirdConfigPath = (hostname: string) => resolve(__dirname, `../dist/${hostname}/bird`);
@@ -128,7 +128,7 @@ const link = async (hostname: string, ip: string, port: number) => {
   });
 
   /* WireGuard */
-  if (!_argv['excludeWireguard']) {
+  if (!argv['excludeWireguard']) {
     const localWgPath = getWireguardConfigPath(hostname);
     const wgConfigMap = await getRemoteHash(ssh, '/etc/wireguard');
     const newWgConfigMap = await getLocalHash(localWgPath);
@@ -137,7 +137,7 @@ const link = async (hostname: string, ip: string, port: number) => {
   }
 
   /* Bird */
-  if (!_argv['excludeBird']) {
+  if (!argv['excludeBird']) {
     const localBirdPath = getBirdConfigPath(hostname);
     const birdConfigMap = await getRemoteHash(ssh, '/etc/bird');
     const newBirdConfigMap = await getLocalHash(localBirdPath);

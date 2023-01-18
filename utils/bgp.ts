@@ -3,7 +3,7 @@ import {
   Peers, Hosts, Config, wireguardFactory, birdPeerFactory
 } from './utils';
 
-const hosts = Hosts['dn42routers']['children'];
+const hosts = Hosts['routers']['children'];
 const { peers } = Peers;
 
 const getSubASN = (asn: number): string => {

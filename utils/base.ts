@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import { Hosts, birdFactory } from './utils';
 import { Options } from '../types';
 
-const hosts = Hosts['dn42routers']['children'];
+const hosts = Hosts['routers']['children'];
 
 export default async function createBaseConfig(host: string, basePath: string, options: Options): Promise<unknown> {
   const { excludeWireguard, excludeBird } = options;

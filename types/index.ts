@@ -21,7 +21,7 @@ export interface IPeers {
 }
 
 export interface IHosts {
-  dn42routers: {
+  routers: {
     children: {
       [propName: string]: {
         host: string;

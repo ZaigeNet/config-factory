@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { resolve } from 'path';
 import { birdPeerFactory, Hosts, Config, wireguardFactory, iBGPCost, birdOspfBackboneFactory } from './utils';
 
-const hosts = Hosts['dn42routers']['children'];
+const hosts = Hosts['routers']['children'];
 
 /* Build iBGP Cost */
 const ibgp: Record<string, Record<string, number>> = {};
