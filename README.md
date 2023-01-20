@@ -16,10 +16,17 @@ sysctl -p
 ## WireGuard
 
 ```bash
-echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list # Debian 10
+# Debian 11
+apt install wireguard wireguard-tools openresolv -y
+
+# Debian 10
+cat << EOF >> /etc/apt/sources.list
+deb http://deb.debian.org/debian buster-backports main
+deb-src http://deb.debian.org/debian buster-backports main
+EOF
 apt update -y
-apt install wireguard wireguard-tools linux-headers-$(uname -r) openresolv -y # Debian 11
-apt -t buster-backports install wireguard wireguard-tools wireguard-dkms linux-headers-$(uname -r) openresolv -y# Debian 10
+apt -t buster-backports install wireguard wireguard-tools wireguard-dkms linux-headers-$(uname -r) openresolv -y
+
 mkdir /etc/wireguard/
 cd /etc/wireguard/
 wg genkey | tee private.key | wg pubkey > public.key
@@ -28,13 +35,17 @@ wg genkey | tee private.key | wg pubkey > public.key
 ## Bird2
 
 ```bash
-apt install bird2 -y # https://packages.debian.org/stable/bird2
-# Latest
-wget -O - http://bird.network.cz/debian/apt.key | apt-key add -
-apt install lsb-release -y
-echo "deb http://bird.network.cz/debian/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/bird.list
-apt update -y
+# https://packages.debian.org/stable/bird2
 apt install bird2 -y
+
+# Newer version e.g. Debian 11 https://packages.debian.org/bullseye-backports/bird2
+cat << EOF >> /etc/apt/sources.list
+deb http://deb.debian.org/debian bullseye-backports main
+deb-src http://deb.debian.org/debian bullseye-backports main
+EOF
+apt update -y
+apt -t bullseye-backports install bird2 -y
+
 mkdir -p /etc/bird/peers
 ```
 
