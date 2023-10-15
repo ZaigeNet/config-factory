@@ -157,7 +157,9 @@ const link = async (hostname: string, ip: string, port: number) => {
   await Promise.all(
     Object.entries(hosts).map(([key, host]) => {
       const { pubip, ssh_port = 22 } = host;
-      return link(key, pubip, ssh_port);
+      return link(key, pubip, ssh_port).catch(error => {
+        console.log(host, error.message);
+      });
     })
   );
 })();

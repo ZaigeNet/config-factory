@@ -119,3 +119,5 @@ dist
 # Editor
 .idea
 .vscode
+
+scripts/manual.ts
