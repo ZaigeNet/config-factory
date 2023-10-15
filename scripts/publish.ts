@@ -6,9 +6,14 @@ import crypto from 'crypto';
 import log4js from 'log4js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import confirm from '@inquirer/confirm';
+import { minimatch } from 'minimatch';
 
 const agent = Config['global']['ssh_agent'];
 const hosts = Config['hosts'];
+
+const ignorePatterns = ['roa_dn42*.conf'];
+const redundantFiles: Map<NodeSSH, { hostname: string; key: string; type: string }[]> = new Map();
 
 log4js.configure({
   appenders: {
@@ -43,7 +48,7 @@ const getRemoteHash = async (ssh: NodeSSH, dir: string) => {
     .filter(item => item.endsWith('.conf'))
     .map(item => {
       const [md5, path] = item.split('  ');
-      const fileName = relative(dir, path);
+      const fileName = relative(dir, path).replace(/\\/g, '/');
       map.set(fileName, md5);
     });
   return map;
@@ -60,7 +65,7 @@ const getLocalHash = async (dir: string) => {
           return step(path);
         }
 
-        const fileName = relative(dir, path);
+        const fileName = relative(dir, path).replace(/\\/g, '/');
         const md5 = crypto
           .createHash('md5')
           .update(await fs.readFile(path, 'utf-8'))
@@ -112,7 +117,14 @@ const checkMap = async (
 
   for (const [key] of oldMap) {
     if (!visited.has(key)) {
-      logger.warn(`${hostname} ${key} is not exist in local but exist in remote`);
+      if (ignorePatterns.some(pattern => minimatch(key, pattern))) {
+        logger.warn(`${hostname} ${key} is not exist in local but exist in remote`);
+        continue;
+      }
+
+      const files = redundantFiles.get(ssh) || [];
+      files.push({ hostname, key, type });
+      redundantFiles.set(ssh, files);
     }
   }
 };
@@ -150,7 +162,7 @@ const link = async (hostname: string, ip: string, port: number) => {
     stderr && logger.error(`${hostname} ${stderr}`);
   }
 
-  return ssh.dispose();
+  return redundantFiles.get(ssh) ? Promise.resolve() : ssh.dispose();
 };
 
 (async () => {
@@ -162,4 +174,34 @@ const link = async (hostname: string, ip: string, port: number) => {
       });
     })
   );
+
+  // Handle redundant files
+  for (const [ssh, files] of redundantFiles.entries()) {
+    let shouldReloadBird = false;
+
+    for (const { hostname, key, type } of files) {
+      const answer = await confirm({
+        message: `${hostname} ${key} is not exist in local but exist in remote, delete?`,
+        default: false
+      });
+      if (answer) {
+        await ssh.execCommand(`rm -rf /etc/${type.toLowerCase()}/${key}`);
+
+        if (type === 'Wireguard') {
+          const { stderr } = await ssh.execCommand(`systemctl disable --now wg-quick@${basename(key, '.conf')}`);
+          stderr && log4js.getLogger(type).error(`${hostname} ${key} ${stderr}`);
+        }
+        if (type === 'Bird' && answer) {
+          shouldReloadBird = true;
+        }
+      }
+    }
+
+    if (shouldReloadBird) {
+      const { stderr } = await ssh.execCommand('birdc c');
+      stderr && log4js.getLogger('Bird').error(stderr);
+    }
+
+    await ssh.dispose();
+  }
 })();
