@@ -37,13 +37,19 @@ const result: Array<[string, string, number]> = [];
 
 async function ping(hostname: string, ip: string, port: number) {
   const ssh = new NodeSSH();
-  await ssh.connect({
-    host: ip,
-    port,
-    username: 'root',
-    agent,
-    agentForward: true
-  });
+  let online = true;
+  try {
+    await ssh.connect({
+      host: ip,
+      port,
+      username: 'root',
+      agent,
+      agentForward: true
+    });
+  } catch (e) {
+    console.log(hostname, e.message);
+    online = false;
+  }
 
   const tags = preTag.get(hostname)!;
 
@@ -52,13 +58,15 @@ async function ping(hostname: string, ip: string, port: number) {
       const host = Hosts.routers.children[key]!;
       const { host: endPoint } = host;
       // https://stackoverflow.com/a/9634982
-      const { stdout } = await ssh.execCommand(`ping -c 5 ${endPoint} | tail -1 | awk '{print $4}' | cut -d '/' -f 2`);
-      const rtt = Math.round(Number(stdout));
+      const { stdout } = online
+        ? await ssh.execCommand(`ping -c 5 ${endPoint} | tail -1 | awk '{print $4}' | cut -d '/' -f 2`)
+        : { stdout: '1000' };
+      const rtt = Math.round(Number(stdout)) || 1000;
       result.push([hostname, key, rtt]);
     })
   );
 
-  return ssh.dispose();
+  return online && ssh.dispose();
 }
 
 (async () => {
