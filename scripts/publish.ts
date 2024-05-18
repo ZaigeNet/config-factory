@@ -1,43 +1,44 @@
 import { NodeSSH } from 'node-ssh';
-import { basename, relative, resolve } from 'path';
+import { basename, relative, resolve } from 'node:path';
 import { Config } from '../utils/utils';
-import { promises as fs } from 'fs';
-import crypto from 'crypto';
+import { promises as fs } from 'node:fs';
+import crypto from 'node:crypto';
 import log4js from 'log4js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import confirm from '@inquirer/confirm';
 import { minimatch } from 'minimatch';
 
-const agent = Config['global']['ssh_agent'];
-const hosts = Config['hosts'];
+const agent = Config.global.ssh_agent;
+const hosts = Config.hosts;
 
 const ignorePatterns = ['roa_dn42*.conf'];
 const redundantFiles: Map<NodeSSH, { hostname: string; key: string; type: string }[]> = new Map();
 
 log4js.configure({
   appenders: {
-    out: { type: 'stdout' }
+    out: { type: 'stdout' },
   },
   categories: {
-    default: { appenders: ['out'], level: 'info' }
-  }
+    default: { appenders: ['out'], level: 'info' },
+  },
 });
 
 const argv = yargs(hideBin(process.argv))
   .option('exclude-wireguard', {
     type: 'boolean',
     default: false,
-    description: 'Skip wireguard config publishing'
+    description: 'Skip wireguard config publishing',
   })
   .option('exclude-bird', {
     type: 'boolean',
     default: false,
-    description: 'Skip bird config publishing'
+    description: 'Skip bird config publishing',
   })
   .parseSync();
 
-const getWireguardConfigPath = (hostname: string) => resolve(__dirname, `../dist/${hostname}/wireguard`);
+const getWireguardConfigPath = (hostname: string) =>
+  resolve(__dirname, `../dist/${hostname}/wireguard`);
 const getBirdConfigPath = (hostname: string) => resolve(__dirname, `../dist/${hostname}/bird`);
 
 const getRemoteHash = async (ssh: NodeSSH, dir: string) => {
@@ -71,7 +72,7 @@ const getLocalHash = async (dir: string) => {
           .update(await fs.readFile(path, 'utf-8'))
           .digest('hex');
         map.set(fileName, md5);
-      })
+      }),
     );
   await step(dir);
   return map;
@@ -83,7 +84,7 @@ const checkMap = async (
   oldMap: Map<string, string>,
   newMap: Map<string, string>,
   path: string,
-  ssh: NodeSSH
+  ssh: NodeSSH,
 ) => {
   const visited = new Set<string>();
   const logger = log4js.getLogger(type);
@@ -97,7 +98,9 @@ const checkMap = async (
       await ssh.putFile(resolve(path, key), `/etc/${type.toLowerCase()}/${key}`);
 
       if (type === 'Wireguard') {
-        const { stderr } = await ssh.execCommand(`systemctl enable --now wg-quick@${basename(key, '.conf')}`);
+        const { stderr } = await ssh.execCommand(
+          `systemctl enable --now wg-quick@${basename(key, '.conf')}`,
+        );
         stderr && logger.error(`${hostname} ${key} ${stderr}`);
       }
 
@@ -109,7 +112,9 @@ const checkMap = async (
       await ssh.putFile(resolve(path, key), `/etc/${type.toLowerCase()}/${key}`);
 
       if (type === 'Wireguard') {
-        const { stderr } = await ssh.execCommand(`systemctl restart wg-quick@${basename(key, '.conf')}`);
+        const { stderr } = await ssh.execCommand(
+          `systemctl restart wg-quick@${basename(key, '.conf')}`,
+        );
         stderr && logger.error(`${hostname} ${key} ${stderr}`);
       }
     }
@@ -136,11 +141,11 @@ const link = async (hostname: string, ip: string, port: number) => {
     port,
     username: 'root',
     agent,
-    agentForward: true
+    agentForward: true,
   });
 
   /* WireGuard */
-  if (!argv['excludeWireguard']) {
+  if (!argv.excludeWireguard) {
     const localWgPath = getWireguardConfigPath(hostname);
     const wgConfigMap = await getRemoteHash(ssh, '/etc/wireguard');
     const newWgConfigMap = await getLocalHash(localWgPath);
@@ -149,7 +154,7 @@ const link = async (hostname: string, ip: string, port: number) => {
   }
 
   /* Bird */
-  if (!argv['excludeBird']) {
+  if (!argv.excludeBird) {
     const localBirdPath = getBirdConfigPath(hostname);
     const birdConfigMap = await getRemoteHash(ssh, '/etc/bird');
     const newBirdConfigMap = await getLocalHash(localBirdPath);
@@ -172,7 +177,7 @@ const link = async (hostname: string, ip: string, port: number) => {
       return link(key, pubip, ssh_port).catch(error => {
         console.log(host, error.message);
       });
-    })
+    }),
   );
 
   // Handle redundant files
@@ -182,13 +187,15 @@ const link = async (hostname: string, ip: string, port: number) => {
     for (const { hostname, key, type } of files) {
       const answer = await confirm({
         message: `${hostname} ${key} is not exist in local but exist in remote, delete?`,
-        default: false
+        default: false,
       });
       if (answer) {
         await ssh.execCommand(`rm -rf /etc/${type.toLowerCase()}/${key}`);
 
         if (type === 'Wireguard') {
-          const { stderr } = await ssh.execCommand(`systemctl disable --now wg-quick@${basename(key, '.conf')}`);
+          const { stderr } = await ssh.execCommand(
+            `systemctl disable --now wg-quick@${basename(key, '.conf')}`,
+          );
           stderr && log4js.getLogger(type).error(`${hostname} ${key} ${stderr}`);
         }
         if (type === 'Bird' && answer) {

@@ -1,9 +1,7 @@
-import { promises as fs } from 'fs';
-import {
-  Peers, Hosts, Config, wireguardFactory, birdPeerFactory
-} from './utils';
+import { promises as fs } from 'node:fs';
+import { Peers, Hosts, Config, wireguardFactory, birdPeerFactory } from './utils';
 
-const hosts = Hosts['routers']['children'];
+const hosts = Hosts.routers.children;
 const { peers } = Peers;
 
 const getSubASN = (asn: number): string => {
@@ -22,21 +20,21 @@ export async function createWGConfig(host: string, basePath: string): Promise<un
     hostPeers.map(peer => {
       const obj = {
         desc: peer.desc,
-        privateKey: Config['hosts'][host]['wg_prikey'],
-        publicKey: peer['wg_pubkey'],
-        presharedKey: peer['wg_presharedkey'],
+        privateKey: Config.hosts[host].wg_prikey,
+        publicKey: peer.wg_pubkey,
+        presharedKey: peer.wg_presharedkey,
         port: peer.port,
-        ownIp: hosts[host]['ownip'],
-        ownIp6: hosts[host]['ownip6'],
-        peerIp: peer['peer_v4'],
-        peerIp6Ula: peer['peer_v6_ula'],
-        endPoint: peer['wg_remote'],
-        local_v6: peer['local_v6']
+        ownIp: hosts[host].ownip,
+        ownIp6: hosts[host].ownip6,
+        peerIp: peer.peer_v4,
+        peerIp6Ula: peer.peer_v6_ula,
+        endPoint: peer.wg_remote,
+        local_v6: peer.local_v6,
       };
       const output = wireguardFactory(obj);
       const netName = `dn${getSubASN(peer.asn)}.conf`;
       return fs.writeFile(`${basePath}/wireguard/${netName}`, output);
-    })
+    }),
   );
 }
 
@@ -51,10 +49,10 @@ export async function createBirdConfig(host: string, basePath: string): Promise<
       const obj = {
         ...peer,
         ibgp: false,
-        netName
+        netName,
       };
       const output = birdPeerFactory(obj);
       return fs.writeFile(`${basePath}/bird/peers/${peer.name}.conf`, output);
-    })
+    }),
   );
 }

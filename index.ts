@@ -1,5 +1,5 @@
-import { promises as fs, constants } from 'fs';
-import { resolve } from 'path';
+import { promises as fs, constants } from 'node:fs';
+import { resolve } from 'node:path';
 import { Config } from './utils/utils';
 import createBaseConfig from './utils/base';
 import { createBirdConfig, createWGConfig } from './utils/bgp';
@@ -11,27 +11,27 @@ const argv = yargs(hideBin(process.argv))
   .option('exclude-wireguard', {
     type: 'boolean',
     default: false,
-    description: 'Skip wireguard config generation'
+    description: 'Skip wireguard config generation',
   })
   .option('exclude-bird', {
     type: 'boolean',
     default: false,
-    description: 'Skip bird config generation'
+    description: 'Skip bird config generation',
   })
   .option('exclude-internal-config', {
     type: 'boolean',
     default: false,
-    description: 'Skip internal config generation'
+    description: 'Skip internal config generation',
   })
   .option('exclude-external-config', {
     type: 'boolean',
     default: false,
-    description: 'Skip external config generation'
+    description: 'Skip external config generation',
   })
   .option('delete', {
     type: 'boolean',
     default: true,
-    description: 'Delete existing config files'
+    description: 'Delete existing config files',
   })
   .parseSync();
 
@@ -46,8 +46,7 @@ const checkFileExists = (file: string) =>
     .catch(() => false);
 
 (async () => {
-
-  if (argv['delete'] && (await checkFileExists(outputDir))) {
+  if (argv.delete && (await checkFileExists(outputDir))) {
     await fs.rm(outputDir, { recursive: true });
   }
 
@@ -58,26 +57,26 @@ const checkFileExists = (file: string) =>
     allHosts.map(host => {
       const basePath = resolveHostDir(host);
       return createBaseConfig(host, basePath, argv);
-    })
+    }),
   );
 
   await Promise.all(
     allHosts.map(host => {
       const basePath = resolveHostDir(host);
       return Promise.all([
-        ...(argv['excludeWireguard']
+        ...(argv.excludeWireguard
           ? []
           : [
-              !argv['excludeInternalConfig'] && createIWGConfig(host, basePath),
-              !argv['excludeExternalConfig'] && createWGConfig(host, basePath)
+              !argv.excludeInternalConfig && createIWGConfig(host, basePath),
+              !argv.excludeExternalConfig && createWGConfig(host, basePath),
             ]),
-        ...(argv['excludeBird']
+        ...(argv.excludeBird
           ? []
           : [
-              !argv['excludeInternalConfig'] && createIBirdConfig(host, basePath),
-              !argv['excludeExternalConfig'] && createBirdConfig(host, basePath)
-            ])
+              !argv.excludeInternalConfig && createIBirdConfig(host, basePath),
+              !argv.excludeExternalConfig && createBirdConfig(host, basePath),
+            ]),
       ]);
-    })
+    }),
   );
 })();

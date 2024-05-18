@@ -14,14 +14,7 @@
     "sourceMap": true,
     "baseUrl": "."
   },
-  "files": [
-    "index.ts"
-  ],
-  "include": [
-    "utils/**/*.ts",
-    "types/**/*.ts",
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "files": ["index.ts"],
+  "include": ["utils/**/*.ts", "types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

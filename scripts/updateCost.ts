@@ -1,21 +1,21 @@
 import log4js from 'log4js';
 import { NodeSSH } from 'node-ssh';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { Config, Hosts } from '../utils/utils';
 
-const agent = Config['global']['ssh_agent'];
-const hosts = Config['hosts'];
+const agent = Config.global.ssh_agent;
+const hosts = Config.hosts;
 
 log4js.configure({
   appenders: {
-    out: { type: 'stdout' }
+    out: { type: 'stdout' },
   },
   categories: {
-    default: { appenders: ['out'], level: 'info' }
-  }
+    default: { appenders: ['out'], level: 'info' },
+  },
 });
 
 const argv = yargs(hideBin(process.argv))
@@ -23,12 +23,12 @@ const argv = yargs(hideBin(process.argv))
     alias: 'o',
     type: 'string',
     default: resolve(__dirname, '../configs/cost.json'),
-    description: 'Skip wireguard config publishing'
+    description: 'Skip wireguard config publishing',
   })
   .option('dry-run', {
     type: 'boolean',
     default: false,
-    description: 'Skip bird config publishing'
+    description: 'Skip bird config publishing',
   })
   .parseSync();
 
@@ -44,7 +44,7 @@ async function ping(hostname: string, ip: string, port: number) {
       port,
       username: 'root',
       agent,
-      agentForward: true
+      agentForward: true,
     });
   } catch (e) {
     console.log(hostname, e.message);
@@ -59,11 +59,13 @@ async function ping(hostname: string, ip: string, port: number) {
       const { host: endPoint } = host;
       // https://stackoverflow.com/a/9634982
       const { stdout } = online
-        ? await ssh.execCommand(`ping -c 5 ${endPoint} | tail -1 | awk '{print $4}' | cut -d '/' -f 2`)
+        ? await ssh.execCommand(
+            `ping -c 5 ${endPoint} | tail -1 | awk '{print $4}' | cut -d '/' -f 2`,
+          )
         : { stdout: '1000' };
       const rtt = Math.round(Number(stdout)) || 1000;
       result.push([hostname, key, rtt]);
-    })
+    }),
   );
 
   return online && ssh.dispose();
@@ -90,7 +92,7 @@ async function ping(hostname: string, ip: string, port: number) {
       return ping(key, pubip, ssh_port).catch(error => {
         console.log(host, error.message);
       });
-    })
+    }),
   );
 
   result.sort((x, y) => {
